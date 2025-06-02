@@ -224,12 +224,14 @@ add_subdirectory(${ENGINE_SOURCE_DIR}/router)
 add_subdirectory(${ENGINE_SOURCE_DIR}/conf)
 add_subdirectory(${ENGINE_SOURCE_DIR}/proto)
 add_subdirectory(${ENGINE_SOURCE_DIR}/metrics)
+add_subdirectory(${ENGINE_SOURCE_DIR}/parser)
 add_subdirectory(${ENGINE_SOURCE_DIR}/geo)
 add_subdirectory(${ENGINE_SOURCE_DIR}/queue)
 add_subdirectory(${ENGINE_SOURCE_DIR}/fs)
 add_subdirectory(${ENGINE_SOURCE_DIR}/keystore)
 add_subdirectory(${ENGINE_SOURCE_DIR}/httpsrv)
 add_subdirectory(${ENGINE_SOURCE_DIR}/archiver)
+add_subdirectory(${ENGINE_SOURCE_DIR}/datagramsrv)
 
 target_link_libraries(main
     base
@@ -246,6 +248,7 @@ target_link_libraries(main
     kvdb
     eMessages
     metrics
+    parser
     geo
     schemf
     rbac
@@ -267,6 +270,11 @@ endif()
 if(ENGINE_BUILD_BENCHMARK)
 add_subdirectory(${ENGINE_BENCHMARK_DIR})
 endif(ENGINE_BUILD_BENCHMARK)
+
+# Add C++ Integration Tests subdirectory
+if(ENGINE_BUILD_TEST)
+add_subdirectory(test/integration_tests) # Assuming CMAKE_CURRENT_SOURCE_DIR is src/engine/
+endif()
 
 # Create a custom test target
 function(get_all_targets _result _dir)

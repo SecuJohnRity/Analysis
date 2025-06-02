@@ -9,6 +9,7 @@ add_library(httpsrv::ihttpsrv ALIAS httpsrv_ihttpsrv)
 
 add_library(httpsrv STATIC
     ${SRC_DIR}/server.cpp
+    ${SRC_DIR}/datagram_socket.cpp
 )
 target_include_directories(httpsrv
     PUBLIC

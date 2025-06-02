@@ -218,6 +218,13 @@ public:
      * @copydoc router::ITesterAPI::getTestTimeout
      */
     std::size_t getTestTimeout() const override { return m_testTimeout; }
+
+    /**
+     * @brief Get the current size of the main event queue.
+     *
+     * @return The number of events currently in the queue.
+     */
+    size_t getEventQueueSize() const;
 };
 
 } // namespace router

@@ -38,6 +38,9 @@
 #include <store/drivers/fileDriver.hpp>
 #include <store/store.hpp>
 #include <vdscanner/scanOrchestrator.hpp>
+#include <httpsrv/datagram_socket.hpp>
+#include <parser/legacy_protocol_parser.hpp>
+#include <datagramsrv/datagram_server.hpp>
 
 #include "base/utils/getExceptionStack.hpp"
 #include "stackExecutor.hpp"
@@ -123,6 +126,7 @@ int main(int argc, char* argv[])
     std::shared_ptr<IIndexerConnector> iConnector;
     std::shared_ptr<httpsrv::Server> apiServer;
     std::shared_ptr<archiver::Archiver> archiver;
+    std::shared_ptr<engine::datagramsrv::DatagramServer> datagramServer;
 
     try
     {
@@ -405,6 +409,48 @@ int main(int argc, char* argv[])
 
             exitHandler.add([orchestrator]() { orchestrator->stop(); });
             LOG_INFO("Router initialized.");
+        }
+
+        // Datagram Server (for legacy 4.x protocol)
+        {
+            // TODO: Fetch these parameters from confManager
+            std::string datagramSocketPath = "/tmp/wazuh_engine_legacy.sock"; // Example path
+            mode_t datagramSocketPerms = 0770; // Example permissions
+            // For owner/group, using current process's uid/gid is a common default.
+            // Proper configuration might involve looking up specific user/group names.
+            uid_t datagramSocketOwner = getuid();
+            gid_t datagramSocketGroup = getgid();
+            size_t datagramMaxQueueSize = 1000; // Example max queue size for DatagramServer
+
+            try {
+                auto dgramSocket = std::make_shared<httpsrv::DatagramSocket>(
+                    httpsrv::SocketType::DGRAM, // DGRAM for datagrams
+                    datagramSocketPath,
+                    datagramSocketPerms,
+                    datagramSocketOwner,
+                    datagramSocketGroup
+                );
+                // Consider setting dgramSocket->setReceiveBufferSize() if needed, from config.
+
+                auto legacyParser = std::make_shared<engine::parser::LegacyProtocolParser>();
+
+                datagramServer = std::make_shared<engine::datagramsrv::DatagramServer>(
+                    dgramSocket,
+                    legacyParser,
+                    orchestrator, // Uses the existing orchestrator instance
+                    datagramMaxQueueSize
+                );
+
+                datagramServer->start();
+                exitHandler.add([datagramServer]() {
+                    if(datagramServer) datagramServer->stop();
+                });
+                LOG_INFO("DatagramServer for legacy protocol initialized and started on path {}.", datagramSocketPath);
+
+            } catch (const std::exception& e) {
+                LOG_ERROR("Failed to initialize or start DatagramServer: {}", e.what());
+                // Depending on policy, might want to exit if this server is critical
+            }
         }
 
         // VD Scanner

@@ -616,4 +616,16 @@ base::RespOrError<std::unordered_set<std::string>> Orchestrator::getAssets(const
     return m_workers.front()->getTester()->getAssets(name);
 }
 
+size_t Orchestrator::getEventQueueSize() const
+{
+    if (m_eventQueue)
+    {
+        return m_eventQueue->size();
+    }
+    // This case should ideally not be reached if the orchestrator is correctly initialized.
+    // Logging an error or warning here might be appropriate if it's considered an invalid state.
+    LOG_WARNING("Orchestrator::getEventQueueSize() called but m_eventQueue is null. Returning 0.");
+    return 0;
+}
+
 } // namespace router
