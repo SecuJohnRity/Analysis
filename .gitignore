@@ -164,3 +164,12 @@ src/wazuh_modules/vulnerability_scanner/qa/test_data/*/input_*.bin
 
 # Tool files
 tools/repository_bumper_*
+
+# External dependencies
+src/engine/deps/Source/benchmark/
+src/engine/deps/Source/concurrentqueue/
+src/engine/deps/Source/curl/
+!src/engine/deps/Source/fmt/
+!src/engine/deps/Source/gtest/
+!src/engine/deps/Source/libmaxminddb/
+!src/engine/deps/Source/opentelemetry-cpp/
