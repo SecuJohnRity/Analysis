@@ -164,3 +164,46 @@ src/wazuh_modules/vulnerability_scanner/qa/test_data/*/input_*.bin
 
 # Tool files
 tools/repository_bumper_*
+
+# External dependencies
+src/engine/deps/Source/openssl/
+src/engine/deps/Binary/openssl/
+src/engine/deps/Source/protobuf/
+src/engine/deps/Binary/protobuf/
+src/engine/deps/Source/fmt/
+src/engine/deps/Binary/fmt/
+src/engine/deps/Source/spdlog/
+src/engine/deps/Binary/spdlog/
+src/engine/deps/Source/date/
+src/engine/deps/Binary/date/
+src/engine/deps/Source/fast-float/
+src/engine/deps/Binary/fast-float/
+src/engine/deps/Source/rapidjson/
+src/engine/deps/Source/pugixml/
+src/engine/deps/Binary/pugixml/
+src/engine/deps/Source/yaml-cpp/
+src/engine/deps/Binary/yaml-cpp/
+src/engine/deps/Source/re2/
+src/engine/deps/Binary/re2/
+src/engine/deps/Source/absl/
+src/engine/deps/Binary/absl/
+src/engine/deps/Source/curl/
+src/engine/deps/Binary/curl/
+src/engine/deps/Source/libmaxminddb/
+src/engine/deps/Binary/libmaxminddb/
+src/engine/deps/Source/concurrentqueue/
+src/engine/deps/Binary/concurrentqueue/
+src/engine/deps/Source/rxcpp/
+src/engine/deps/Binary/rxcpp/
+src/engine/deps/Source/taskflow/
+src/engine/deps/Binary/taskflow/
+src/engine/deps/Source/rocksdb/
+src/engine/deps/Binary/rocksdb/
+src/engine/deps/Source/opentelemetry-cpp/
+src/engine/deps/Binary/opentelemetry-cpp/
+src/engine/deps/Source/cpp-httplib/
+src/engine/deps/Binary/cpp-httplib/
+src/engine/deps/Source/gtest/
+src/engine/deps/Binary/gtest/
+src/engine/deps/Source/benchmark/
+src/engine/deps/Binary/benchmark/
