@@ -22,6 +22,8 @@
 #include "indexerConnector.hpp"
 #include "systemContext.hpp"
 #include "upsertElement.hpp"
+#include "systemInventory/elements/userElement.hpp"    // Added
+#include "systemInventory/elements/groupElement.hpp"  // Added
 #include <memory>
 
 /**

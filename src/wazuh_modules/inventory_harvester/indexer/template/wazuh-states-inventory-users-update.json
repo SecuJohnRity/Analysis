@@ -1,0 +1,52 @@
+{
+  "index_patterns": [
+    "wazuh-states-inventory-users*"
+  ],
+  "priority": 2,
+  "template": {
+    "settings": {},
+    "mappings": {
+      "date_detection": false,
+      "dynamic": "strict",
+      "properties": {
+        "agent_id": {"type": "keyword"}, "scan_time": {"type": "date"}, "@timestamp": {"type": "alias", "path": "scan_time"}, "type": {"type": "keyword"},
+        "host": {"properties": {"ip": {"type": "ip"}, "hostname": {"type": "keyword"}}},
+        "login": {"properties": {"status": {"type": "boolean"}, "tty": {"ignore_above": 1024, "type": "keyword"}, "type": {"ignore_above": 1024, "type": "keyword"}}},
+        "process": {"properties": {"pid": {"type": "long"}}},
+        "user": {
+          "properties": {
+            "auth_failures": {"properties": {"count": {"type": "integer"}, "timestamp": {"type": "date"}}},
+            "created": {"type": "date"},
+            "full_name": {"ignore_above": 1024, "type": "keyword"},
+            "group": {"properties": {"id": {"type": "unsigned_long"}, "id_signed": {"type": "long"}}},
+            "groups": {"ignore_above": 1024, "type": "keyword"},
+            "home": {"ignore_above": 1024, "type": "keyword"},
+            "id": {"ignore_above": 1024, "type": "keyword"},
+            "is_hidden": {"type": "boolean"},
+            "is_remote": {"type": "boolean"},
+            "last_login": {"type": "date"},
+            "name": {"ignore_above": 1024, "type": "keyword"},
+            "password": {
+              "properties": {
+                "expiration_date": {"type": "date"},
+                "hash_algorithm": {"ignore_above": 1024, "type": "keyword"},
+                "inactive_days": {"type": "integer"},
+                "last_change": {"type": "integer"},
+                "last_set_time": {"type": "date"},
+                "max_days_between_changes": {"type": "integer"},
+                "min_days_between_changes": {"type": "integer"},
+                "status": {"ignore_above": 1024, "type": "keyword"},
+                "warning_days_before_expiration": {"type": "integer"}
+              }
+            },
+            "roles": {"ignore_above": 1024, "type": "keyword"},
+            "shell": {"ignore_above": 1024, "type": "keyword"},
+            "type": {"ignore_above": 1024, "type": "keyword"},
+            "uid_signed": {"type": "long"},
+            "uuid": {"ignore_above": 1024, "type": "keyword"}
+          }
+        }
+      }
+    }
+  }
+}

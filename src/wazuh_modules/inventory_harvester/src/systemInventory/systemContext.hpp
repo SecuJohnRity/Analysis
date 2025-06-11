@@ -52,6 +52,8 @@ public:
         NetProto,
         NetIface,
         NetworkAddress,
+        User,  // Added
+        Group, // Added
         Invalid
     };
 
@@ -66,6 +68,8 @@ public:
         NetworkProtocol,
         NetIfaces,
         NetAddress,
+        Users,  // Added
+        Groups, // Added
         Invalid
     };
     explicit SystemContext(
