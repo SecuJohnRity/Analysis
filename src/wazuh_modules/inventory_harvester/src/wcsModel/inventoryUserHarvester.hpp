@@ -1,33 +1,44 @@
 #ifndef INVENTORY_USER_HARVESTER_HPP
 #define INVENTORY_USER_HARVESTER_HPP
 
-#include "data.hpp"
-#include "systemInventory/elements/userElement.hpp" // Include the new UserElement
+#include <string>
+#include <vector>
+#include "reflectiveJson.hpp"
+#include "wcsClasses/agent.hpp"
+#include "wcsClasses/wazuh.hpp"
 
 namespace wazuh {
 namespace inventory {
 namespace harvester {
 
-class InventoryUserHarvester : public Data {
-public:
-    InventoryUserHarvester() : Data(std::make_shared<UserElement>()) {} // Use UserElement
-    ~InventoryUserHarvester() = default;
+// Define the structure for User data
+struct UserDataFields {
+    REFLECTIVE_JSON_OBJECT;
+    std::string uid;
+    std::string gid;
+    std::string name;
+    std::string home;
+    std::string shell;
+    // std::vector<std::string> groups; // Kept simple for now
 
-    std::string generateInsertRequest(const std::string& agent_id, const std::string&જરoot_index, const std::string& 이벤트_data) const override {
-        // Implementation for generating insert request for user data
-        // This will likely involve formatting the event_data into a JSON payload
-        // suitable for indexing, similar to other harvester classes.
-        return ""; // Placeholder
+    static void declare_reflective_fields() {
+        REFLECTIVE_JSON_ADD_FIELD(uid);
+        REFLECTIVE_JSON_ADD_FIELD(gid);
+        REFLECTIVE_JSON_ADD_FIELD(name);
+        REFLECTIVE_JSON_ADD_FIELD(home);
+        REFLECTIVE_JSON_ADD_FIELD(shell);
+        // REFLECTIVE_JSON_ADD_FIELD(groups);
     }
+};
 
-    std::string generateUpdateRequest(const std::string& agent_id, const std::string&જરoot_index, const std::string& 이벤트_data, const std::string& document_id) const override {
-        // Implementation for generating update request for user data
-        return ""; // Placeholder
-    }
+struct InventoryUserHarvester final {
+    Agent agent;
+    UserDataFields user;
+    Wazuh wazuh;
 
-    std::string getType() const override {
-        return "user"; // Corresponds to the table name in wazuh-db
-    }
+    REFLECTABLE(MAKE_FIELD("user", &InventoryUserHarvester::user),
+                MAKE_FIELD("agent", &InventoryUserHarvester::agent),
+                MAKE_FIELD("wazuh", &InventoryUserHarvester::wazuh));
 };
 
 } // namespace harvester

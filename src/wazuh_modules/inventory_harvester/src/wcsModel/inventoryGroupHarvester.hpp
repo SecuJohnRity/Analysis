@@ -1,31 +1,38 @@
 #ifndef INVENTORY_GROUP_HARVESTER_HPP
 #define INVENTORY_GROUP_HARVESTER_HPP
 
-#include "data.hpp"
-#include "systemInventory/elements/groupElement.hpp" // Include the new GroupElement
+#include <string>
+#include <vector>
+#include "reflectiveJson.hpp"
+#include "wcsClasses/agent.hpp"
+#include "wcsClasses/wazuh.hpp"
 
 namespace wazuh {
 namespace inventory {
 namespace harvester {
 
-class InventoryGroupHarvester : public Data {
-public:
-    InventoryGroupHarvester() : Data(std::make_shared<GroupElement>()) {} // Use GroupElement
-    ~InventoryGroupHarvester() = default;
+// Define the structure for Group data
+struct GroupDataFields {
+    REFLECTIVE_JSON_OBJECT;
+    std::string gid;
+    std::string name;
+    // std::vector<std::string> members; // Kept simple for now
 
-    std::string generateInsertRequest(const std::string& agent_id, const std::string&જરoot_index, const std::string& 이벤트_data) const override {
-        // Implementation for generating insert request for group data
-        return ""; // Placeholder
+    static void declare_reflective_fields() {
+        REFLECTIVE_JSON_ADD_FIELD(gid);
+        REFLECTIVE_JSON_ADD_FIELD(name);
+        // REFLECTIVE_JSON_ADD_FIELD(members);
     }
+};
 
-    std::string generateUpdateRequest(const std::string& agent_id, const std::string&જરoot_index, const std::string& 이벤트_data, const std::string& document_id) const override {
-        // Implementation for generating update request for group data
-        return ""; // Placeholder
-    }
+struct InventoryGroupHarvester final {
+    Agent agent;
+    GroupDataFields group;
+    Wazuh wazuh;
 
-    std::string getType() const override {
-        return "group"; // Corresponds to the table name in wazuh-db
-    }
+    REFLECTABLE(MAKE_FIELD("group", &InventoryGroupHarvester::group),
+                MAKE_FIELD("agent", &InventoryGroupHarvester::agent),
+                MAKE_FIELD("wazuh", &InventoryGroupHarvester::wazuh));
 };
 
 } // namespace harvester

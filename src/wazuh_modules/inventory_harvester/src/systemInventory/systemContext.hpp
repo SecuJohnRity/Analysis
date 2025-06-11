@@ -52,6 +52,8 @@ public:
         NetProto,
         NetIface,
         NetworkAddress,
+            User, // New
+            Group, // New
         Invalid
     };
 
@@ -66,6 +68,8 @@ public:
         NetworkProtocol,
         NetIfaces,
         NetAddress,
+        Users, // New
+        Groups, // New
         Invalid
     };
     explicit SystemContext(
@@ -125,6 +129,243 @@ public:
             {
                 return m_jsonData->at("/agent_info/agent_id"_json_pointer).get<std::string_view>();
             }
+        }
+        }
+        return "";
+    }
+
+    // Group Data Getters (assuming flatbuffer field names)
+    std::string_view groupId() const // For the unique ID of the group entry, not necessarily the GID itself if composite
+    {
+        if (m_type == VariantType::Delta)
+        {
+            // Assuming dbsync_groups and item_id field
+            if (m_delta->data_as_dbsync_groups() && m_delta->data_as_dbsync_groups()->item_id())
+            {
+                return m_delta->data_as_dbsync_groups()->item_id()->string_view();
+            }
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            // Assuming syscollector_groups and item_id field
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_groups() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->item_id())
+            {
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->item_id()->string_view();
+            }
+        }
+        else // JSON path for completeness
+        {
+             if (m_jsonData && m_jsonData->contains("/data/item_id"_json_pointer))
+            {
+                return m_jsonData->at("/data/item_id"_json_pointer).get<std::string_view>();
+            }
+        }
+        return "";
+    }
+
+    std::string_view groupGid() const // For the actual GID of the group
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_groups() && m_delta->data_as_dbsync_groups()->gid())
+                return m_delta->data_as_dbsync_groups()->gid()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_groups() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->gid())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->gid()->string_view();
+        }
+        return "";
+    }
+
+    std::string_view groupName() const
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_groups() && m_delta->data_as_dbsync_groups()->name())
+                return m_delta->data_as_dbsync_groups()->name()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_groups() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->name())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->name()->string_view();
+        }
+        return "";
+    }
+
+    // Group Data Getters (assuming flatbuffer field names)
+    std::string_view groupId() const // For the unique ID of the group entry, not necessarily the GID itself if composite
+    {
+        if (m_type == VariantType::Delta)
+        {
+            // Assuming dbsync_groups and item_id field
+            if (m_delta->data_as_dbsync_groups() && m_delta->data_as_dbsync_groups()->item_id())
+            {
+                return m_delta->data_as_dbsync_groups()->item_id()->string_view();
+            }
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            // Assuming syscollector_groups and item_id field
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_groups() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->item_id())
+            {
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->item_id()->string_view();
+            }
+        }
+        else // JSON path for completeness
+        {
+             if (m_jsonData && m_jsonData->contains("/data/item_id"_json_pointer))
+            {
+                return m_jsonData->at("/data/item_id"_json_pointer).get<std::string_view>();
+            }
+        }
+        return "";
+    }
+
+    std::string_view groupGid() const // For the actual GID of the group
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_groups() && m_delta->data_as_dbsync_groups()->gid())
+                return m_delta->data_as_dbsync_groups()->gid()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_groups() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->gid())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->gid()->string_view();
+        }
+        return "";
+    }
+
+    std::string_view groupName() const
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_groups() && m_delta->data_as_dbsync_groups()->name())
+                return m_delta->data_as_dbsync_groups()->name()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_groups() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->name())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_groups()->name()->string_view();
+        }
+        return "";
+    }
+
+    // User Data Getters (assuming flatbuffer field names)
+    std::string_view userId() const
+    {
+        if (m_type == VariantType::Delta)
+        {
+            // Assuming dbsync_users and item_id field
+            if (m_delta->data_as_dbsync_users() && m_delta->data_as_dbsync_users()->item_id())
+            {
+                return m_delta->data_as_dbsync_users()->item_id()->string_view();
+            }
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            // Assuming syscollector_users and item_id field
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_users() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_users()->item_id())
+            {
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_users()->item_id()->string_view();
+            }
+        }
+        else // JSON path for completeness, if deletion by user ID via JSON is supported
+        {
+            if (m_jsonData && m_jsonData->contains("/data/item_id"_json_pointer))
+            {
+                // This might conflict if item_id is generic. Specific path for user needed if so.
+                // For now, matches packageItemId style for deletion.
+                return m_jsonData->at("/data/item_id"_json_pointer).get<std::string_view>();
+            }
+        }
+        return "";
+    }
+
+    std::string_view userUid() const
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_users() && m_delta->data_as_dbsync_users()->uid())
+                return m_delta->data_as_dbsync_users()->uid()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_users() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_users()->uid())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_users()->uid()->string_view();
+        }
+        return "";
+    }
+
+    std::string_view userGid() const // For primary GID of user
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_users() && m_delta->data_as_dbsync_users()->gid())
+                return m_delta->data_as_dbsync_users()->gid()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_users() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_users()->gid())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_users()->gid()->string_view();
+        }
+        return "";
+    }
+
+    std::string_view userName() const
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_users() && m_delta->data_as_dbsync_users()->name())
+                return m_delta->data_as_dbsync_users()->name()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_users() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_users()->name())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_users()->name()->string_view();
+        }
+        return "";
+    }
+
+    std::string_view userHome() const
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_users() && m_delta->data_as_dbsync_users()->home())
+                return m_delta->data_as_dbsync_users()->home()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_users() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_users()->home())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_users()->home()->string_view();
+        }
+        return "";
+    }
+
+    std::string_view userShell() const
+    {
+        if (m_type == VariantType::Delta)
+        {
+            if (m_delta->data_as_dbsync_users() && m_delta->data_as_dbsync_users()->shell())
+                return m_delta->data_as_dbsync_users()->shell()->string_view();
+        }
+        else if (m_type == VariantType::SyncMsg)
+        {
+            if (m_syncMsg->data_as_state() && m_syncMsg->data_as_state()->attributes_as_syscollector_users() &&
+                m_syncMsg->data_as_state()->attributes_as_syscollector_users()->shell())
+                return m_syncMsg->data_as_state()->attributes_as_syscollector_users()->shell()->string_view();
         }
         return "";
     }
@@ -2361,6 +2602,16 @@ private:
                 m_affectedComponentType = AffectedComponentType::NetworkAddress;
                 m_originTable = OriginTable::NetAddress;
             }
+            else if (delta->data_type() == SyscollectorDeltas::Provider_dbsync_users) // New
+            {
+                m_affectedComponentType = AffectedComponentType::User;
+                m_originTable = OriginTable::Users;
+            }
+            else if (delta->data_type() == SyscollectorDeltas::Provider_dbsync_groups) // New
+            {
+                m_affectedComponentType = AffectedComponentType::Group;
+                m_originTable = OriginTable::Groups;
+            }
             else
             {
                 // TO DO: Add log.
@@ -2439,6 +2690,20 @@ private:
                 m_affectedComponentType = AffectedComponentType::NetIface;
                 m_originTable = OriginTable::NetIfaces;
             }
+                    else if (syncMsg->data_as_state()->attributes_type() ==
+                             Synchronization::AttributesUnion_syscollector_users) // New
+                    {
+                        m_operation = Operation::Upsert;
+                        m_affectedComponentType = AffectedComponentType::User;
+                        m_originTable = OriginTable::Users;
+                    }
+                    else if (syncMsg->data_as_state()->attributes_type() ==
+                             Synchronization::AttributesUnion_syscollector_groups) // New
+                    {
+                        m_operation = Operation::Upsert;
+                        m_affectedComponentType = AffectedComponentType::Group;
+                        m_originTable = OriginTable::Groups;
+                    }
             else
             {
                 throw std::runtime_error("Attributes type not found in sync message. => " +
@@ -2503,6 +2768,18 @@ private:
                     m_operation = Operation::DeleteAllEntries;
                     m_affectedComponentType = AffectedComponentType::NetworkAddress;
                     m_originTable = OriginTable::NetAddress;
+                }
+                else if (attributesTypeStr.compare("syscollector_users") == 0) // New
+                {
+                    m_operation = Operation::DeleteAllEntries;
+                    m_affectedComponentType = AffectedComponentType::User;
+                    m_originTable = OriginTable::Users;
+                }
+                else if (attributesTypeStr.compare("syscollector_groups") == 0) // New
+                {
+                    m_operation = Operation::DeleteAllEntries;
+                    m_affectedComponentType = AffectedComponentType::Group;
+                    m_originTable = OriginTable::Groups;
                 }
                 else
                 {
@@ -2573,6 +2850,18 @@ private:
                     m_affectedComponentType = AffectedComponentType::NetworkAddress;
                     m_originTable = OriginTable::NetAddress;
                 }
+                else if (attributesTypeStr.compare("syscollector_users") == 0) // New
+                {
+                    m_operation = Operation::IndexSync;
+                    m_affectedComponentType = AffectedComponentType::User;
+                    m_originTable = OriginTable::Users;
+                }
+                else if (attributesTypeStr.compare("syscollector_groups") == 0) // New
+                {
+                    m_operation = Operation::IndexSync;
+                    m_affectedComponentType = AffectedComponentType::Group;
+                    m_originTable = OriginTable::Groups;
+                }
                 else
                 {
                     // TO DO: Add log.
@@ -2641,6 +2930,18 @@ private:
             m_affectedComponentType = AffectedComponentType::NetworkAddress;
             m_originTable = OriginTable::NetAddress;
         }
+            else if (action.compare("deleteUser") == 0) // New
+            {
+                m_operation = Operation::Delete;
+                m_affectedComponentType = AffectedComponentType::User;
+                m_originTable = OriginTable::Users; // So DeleteSystemElement can pick it up
+            }
+            else if (action.compare("deleteGroup") == 0) // New
+            {
+                m_operation = Operation::Delete;
+                m_affectedComponentType = AffectedComponentType::Group;
+                m_originTable = OriginTable::Groups; // So DeleteSystemElement can pick it up
+            }
         else if (action.compare("upgradeAgentDB") == 0)
         {
             m_operation = Operation::UpgradeAgentDB;
