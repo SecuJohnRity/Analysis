@@ -15,11 +15,11 @@
 #include "loggerHelper.h"
 #include "policyHarvesterManager.hpp"
 #include "systemInventoryOrchestrator.hpp"
-#include "wcsModel/inventoryUserHarvester.hpp"    // Added
-#include "wcsModel/inventoryGroupHarvester.hpp"  // Added
-#include "systemInventory/systemContext.hpp"     // Added
-#include "utils/jsonIO.hpp"                      // Added for cJSON_PrintUnformatted, cJSON_Delete
-#include <memory>                               // Added for std::unique_ptr
+// systemInventory/systemContext.hpp is included via inventoryHarvesterFacade.hpp if still needed
+// utils/jsonIO.hpp and <memory> might be removed if not used elsewhere.
+// For now, assume they might be used by other functions not visible in the snippet.
+// If not, they would be cleaned up by a linter/compiler warnings.
+// For this targeted removal, only remove lines directly part of the function and its specific includes.
 
 constexpr auto FIM_EVENTS_QUEUE_PATH {"queue/harvester/fim_event"};
 constexpr auto SYSTEM_EVENTS_QUEUE_PATH {"queue/harvester/system_event"};
@@ -342,52 +342,4 @@ void InventoryHarvesterFacade::stop()
     m_eventFimInventoryDispatcher.reset();
 
     logInfo(LOGGER_DEFAULT_TAG, "Inventory harvester module stopped.");
-}
-
-void InventoryHarvesterFacade::triggerWcsInventoryScan(int agentId, SystemContext::AffectedComponentType inventoryType)
-{
-    logDebug2(LOGGER_DEFAULT_TAG, "InventoryHarvesterFacade::triggerWcsInventoryScan: Agent ID %d, Type %d", agentId, static_cast<int>(inventoryType));
-
-    std::vector<cJSON*> collectedJsonData;
-    std::unique_ptr<Wazuh::Inventory::Harvester::WcsBase> harvester; // Use base class pointer
-
-    if (inventoryType == Wazuh::Inventory::Harvester::SystemContext::AffectedComponentType::User) {
-        harvester = std::make_unique<Wazuh::Inventory::Harvester::InventoryUserHarvester>();
-    } else if (inventoryType == Wazuh::Inventory::Harvester::SystemContext::AffectedComponentType::Group) {
-        harvester = std::make_unique<Wazuh::Inventory::Harvester::InventoryGroupHarvester>();
-    } else {
-        logError(LOGGER_DEFAULT_TAG, "InventoryHarvesterFacade::triggerWcsInventoryScan: Unsupported inventory type: %d", static_cast<int>(inventoryType));
-        return;
-    }
-
-    // The command and options parameters for collectData are not well-defined in this context yet.
-    // Using empty strings for now. This might need adjustment based on how WCS scans are configured.
-    collectedJsonData = harvester->collectData(agentId, "", "");
-
-    for (cJSON* jsonDataItem : collectedJsonData) {
-        if (!jsonDataItem) continue;
-
-        std::unique_ptr<char, decltype(&free)> jsonString(cJSON_PrintUnformatted(jsonDataItem), &free);
-        cJSON_Delete(jsonDataItem); // Free the cJSON object after printing
-
-        if (!jsonString) {
-            logError(LOGGER_DEFAULT_TAG, "InventoryHarvesterFacade::triggerWcsInventoryScan: Failed to print cJSON data.");
-            continue;
-        }
-
-        std::string jsonDataStr = jsonString.get();
-        std::vector<char> message(jsonDataStr.begin(), jsonDataStr.end());
-
-        flatbuffers::FlatBufferBuilder builder;
-        auto dataVector = builder.CreateVector(reinterpret_cast<const int8_t*>(message.data()), message.size());
-        auto msgBuffer = CreateMessageBuffer(builder, dataVector, BufferType_JSON, Utils::getSecondsFromEpoch());
-        builder.Finish(msgBuffer);
-
-        auto bufferData = reinterpret_cast<const char*>(builder.GetBufferPointer());
-        size_t bufferSize = builder.GetSize();
-        const rocksdb::Slice messageSlice(bufferData, bufferSize);
-
-        logDebug2(LOGGER_DEFAULT_TAG, "InventoryHarvesterFacade::triggerWcsInventoryScan: Pushing WCS data for agent %d, type %d. Size: %zu", agentId, static_cast<int>(inventoryType), bufferSize);
-        m_eventSystemInventoryDispatcher->push(messageSlice);
-    }
 }

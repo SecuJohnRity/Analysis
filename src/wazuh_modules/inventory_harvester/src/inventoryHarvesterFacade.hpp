@@ -58,14 +58,6 @@ public:
     void stop();
 
     /**
-     * @brief Triggers a WCS scan for a specific agent and inventory type (Users or Groups).
-     *
-     * @param agentId The ID of the agent to scan.
-     * @param inventoryType The type of inventory to collect (User or Group).
-     */
-    void triggerWcsInventoryScan(int agentId, SystemContext::AffectedComponentType inventoryType);
-
-    /**
      * @brief push event to the event dispatcher.
      * This method is used to push an event to the event dispatcher.
      * @param message event message.
