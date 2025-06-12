@@ -22,6 +22,8 @@
 #include "elements/packageElement.hpp"
 #include "elements/portElement.hpp"
 #include "elements/processElement.hpp"
+#include "elements/userElement.hpp"
+#include "elements/groupElement.hpp"
 #include "loggerHelper.h"
 
 template<typename TContext>
@@ -80,9 +82,17 @@ public:
         {
             data->m_serializedElement = serializeToJSON(NetElement<TContext>::deleteElement(data.get()));
         }
+        else if (originTable == TContext::OriginTable::Users)
+        {
+            data->m_serializedElement = serializeToJSON(UserElement<TContext>::deleteElement(data.get()));
+        }
+        else if (originTable == TContext::OriginTable::Groups)
+        {
+            data->m_serializedElement = serializeToJSON(GroupElement<TContext>::deleteElement(data.get()));
+        }
         else
         {
-            logDebug2(LOGGER_DEFAULT_TAG, "DeleteSystemElement::build: not implemented");
+            logDebug2(LOGGER_DEFAULT_TAG, "DeleteSystemElement::build: not implemented for table %u", static_cast<unsigned int>(originTable));
             return nullptr;
         }
         logDebug2(LOGGER_DEFAULT_TAG, "DeleteSystemElement::build: %s", data->m_serializedElement.c_str());

@@ -151,6 +151,51 @@ table dbsync_packages {
     item_id:string;
 }
 
+table DbsyncUsers {
+    item_id:string;
+    name:string;
+    uid:string; // User ID (e.g., "1001")
+    gid:string; // Primary Group ID (e.g., "1001")
+    home:string;
+    shell:string;
+    uuid:string;
+    full_name:string;
+    is_hidden:bool = false;
+    is_remote:bool = false;
+    password_hash_algorithm:string;
+    password_last_change:long = 0;
+    password_max_days_between_changes:int = 0;
+    password_min_days_between_changes:int = 0;
+    password_warning_days_before_expiration:int = 0;
+    password_expiration_date:string; // ISO8601
+    password_status:string;
+    password_last_set_time:string; // ISO8601
+    password_inactive_days:int = 0;
+    created:string; // ISO8601
+    last_login:string; // ISO8601
+    roles:string; // Comma-separated or JSON array string
+    groups:string; // Comma-separated or JSON array string
+    auth_failures_count:int = 0;
+    auth_failures_timestamp:string; // ISO8601
+    login_status:bool = false;
+    login_type:string;
+    login_tty:string;
+    // scan_time:string; // Common field, add if needed
+    // scan_id:string; // Common field, add if needed
+}
+
+table DbsyncGroups {
+    item_id:string;
+    name:string;
+    gid:string; // Group ID (e.g., "1001")
+    description:string;
+    uuid:string;
+    is_hidden:bool = false;
+    users:string; // Comma-separated or JSON array string
+    // scan_time:string; // Common field, add if needed
+    // scan_id:string; // Common field, add if needed
+}
+
 union Provider {
     dbsync_network_iface,
     dbsync_network_protocol,
@@ -160,7 +205,9 @@ union Provider {
     dbsync_ports,
     dbsync_packages,
     dbsync_hotfixes,
-    dbsync_processes
+    dbsync_processes,
+    DbsyncUsers,
+    DbsyncGroups
 }
 
 table AgentInfo {

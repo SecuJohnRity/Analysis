@@ -156,6 +156,51 @@ table syscollector_processes {
     vm_size:long;
 }
 
+table SyscollectorUsersAttributes {
+    item_id:string;
+    name:string;
+    uid:string;
+    gid:string;
+    home:string;
+    shell:string;
+    uuid:string;
+    full_name:string;
+    is_hidden:bool = false;
+    is_remote:bool = false;
+    password_hash_algorithm:string;
+    password_last_change:long = 0;
+    password_max_days_between_changes:int = 0;
+    password_min_days_between_changes:int = 0;
+    password_warning_days_before_expiration:int = 0;
+    password_expiration_date:string;
+    password_status:string;
+    password_last_set_time:string;
+    password_inactive_days:int = 0;
+    created:string;
+    last_login:string;
+    roles:string;
+    groups:string;
+    auth_failures_count:int = 0;
+    auth_failures_timestamp:string;
+    login_status:bool = false;
+    login_type:string;
+    login_tty:string;
+    // scan_time:string;
+    // scan_id:string;
+}
+
+table SyscollectorGroupsAttributes {
+    item_id:string;
+    name:string;
+    gid:string;
+    description:string;
+    uuid:string;
+    is_hidden:bool = false;
+    users:string;
+    // scan_time:string;
+    // scan_id:string;
+}
+
 table fim_file {
     checksum:string;
     gid:string;
@@ -201,6 +246,8 @@ union AttributesUnion {
     syscollector_packages,
     syscollector_ports,
     syscollector_processes,
+    SyscollectorUsersAttributes,
+    SyscollectorGroupsAttributes,
     fim_file,
     fim_registry_key,
     fim_registry_value
