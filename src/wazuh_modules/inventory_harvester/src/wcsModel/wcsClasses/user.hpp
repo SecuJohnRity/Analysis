@@ -19,12 +19,12 @@
 
 // Forward declaration if Host is in a different header or define basic Host here
 // Assuming Host struct is simple and defined here. If it's complex and shared, it might need its own file.
-struct Host {
+struct Host final {
     std::string_view ip; // Changed
     REFLECTABLE(MAKE_FIELD("ip", &Host::ip));
 };
 
-struct Login {
+struct Login final {
     bool status = false;
     std::string_view tty; // Changed
     std::string_view type; // Changed
@@ -33,12 +33,12 @@ struct Login {
                 MAKE_FIELD("type", &Login::type));
 };
 
-struct Process { // Assuming Process remains simple with only pid
+struct Process final { // Assuming Process remains simple with only pid
     long pid = 0;
     REFLECTABLE(MAKE_FIELD("pid", &Process::pid));
 };
 
-struct AuthFailures {
+struct AuthFailures final {
     int count = 0;
     std::string_view timestamp; // Changed (Assuming ISO8601 date string)
     REFLECTABLE(MAKE_FIELD("count", &AuthFailures::count),
@@ -46,14 +46,14 @@ struct AuthFailures {
 };
 
 // UserGroupInfo is fine as it only contains numeric types and REFLECTABLE
-struct UserGroupInfo {
+struct UserGroupInfo final {
     unsigned long id = 0;
     long id_signed = 0;
     REFLECTABLE(MAKE_FIELD("id", &UserGroupInfo::id),
                 MAKE_FIELD("id_signed", &UserGroupInfo::id_signed));
 };
 
-struct Password {
+struct Password final {
     std::string_view expiration_date; // Changed (Assuming ISO8601 date string)
     std::string_view hash_algorithm;  // Changed
     int inactive_days = 0;
@@ -74,7 +74,7 @@ struct Password {
                 MAKE_FIELD("warning_days_before_expiration", &Password::warning_days_before_expiration));
 };
 
-struct User {
+struct User final {
     AuthFailures auth_failures;
     std::string_view created; // Changed (Assuming ISO8601 date string)
     std::string_view full_name; // Changed

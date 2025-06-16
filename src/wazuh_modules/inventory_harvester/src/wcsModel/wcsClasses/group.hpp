@@ -16,7 +16,7 @@
 #include <string_view> // Added for std::string_view
 #include <vector>      // Kept for std::vector
 
-struct Group {
+struct Group final {
     std::string_view description; // Changed to string_view
     unsigned long id = 0;
     long id_signed = 0;
