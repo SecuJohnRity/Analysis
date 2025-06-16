@@ -87,14 +87,14 @@ public:
         unsigned long ugid_val = 0;
         std::string_view userGroupId_sv = context->userGroupId();
         if (!userGroupId_sv.empty()) {
-            std::string temp_str(userGroupId_sv);
-            try {
-                gid_val = std::stol(temp_str);
-                if (gid_val >= 0) {
-                    ugid_val = static_cast<unsigned long>(gid_val);
-                }
-            } catch (const std::invalid_argument&) { /* default 0 */ }
-              catch (const std::out_of_range&) { /* default 0 */ }
+            std::string temp_str(userGroupId_sv); // stol needs null-terminated string
+            // try-catch removed
+            gid_val = std::stol(temp_str); // Potential to throw, now unhandled locally
+            if (gid_val >= 0) {
+                ugid_val = static_cast<unsigned long>(gid_val);
+            }
+            // If stol throws, values remain 0 due to initialization, but execution would stop before assignment here.
+            // This behavior change (crashing on bad format vs. defaulting to 0) is a consequence of removing try-catch.
         }
         element.data.user.group.id_signed = gid_val;
         element.data.user.group.id = ugid_val;
@@ -111,11 +111,9 @@ public:
         long uid_signed_val = 0;
         std::string_view userId_sv = context->userId();
         if (!userId_sv.empty()) {
-             std::string temp_str(userId_sv);
-            try {
-                uid_signed_val = std::stol(temp_str);
-            } catch (const std::invalid_argument&) { /* default 0 */ }
-              catch (const std::out_of_range&) { /* default 0 */ }
+             std::string temp_str(userId_sv); // stol needs null-terminated string
+             // try-catch removed
+             uid_signed_val = std::stol(temp_str); // Potential to throw
         }
         element.data.user.uid_signed = uid_signed_val;
 

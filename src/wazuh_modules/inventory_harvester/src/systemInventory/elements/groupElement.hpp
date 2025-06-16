@@ -80,14 +80,12 @@ public:
         unsigned long ugid_val = 0;
         std::string_view groupId_sv = context->groupId();
         if(!groupId_sv.empty()){
-            std::string temp_str(groupId_sv);
-            try {
-                gid_val = std::stol(temp_str);
-                if (gid_val >= 0) {
-                    ugid_val = static_cast<unsigned long>(gid_val);
-                }
-            } catch (const std::invalid_argument&) { /* default 0 */ }
-              catch (const std::out_of_range&) { /* default 0 */ }
+            std::string temp_str(groupId_sv); // stol needs null-terminated string
+            // try-catch removed
+            gid_val = std::stol(temp_str); // Potential to throw
+            if (gid_val >= 0) {
+                ugid_val = static_cast<unsigned long>(gid_val);
+            }
         }
         element.data.group.id_signed = gid_val;
         element.data.group.id = ugid_val;
