@@ -156,7 +156,7 @@ table syscollector_processes {
     vm_size:long;
 }
 
-table SyscollectorUsersAttributes {
+table syscollector_users { // Renamed from SyscollectorUsersAttributes
     item_id:string;
     name:string;
     uid:string;
@@ -189,7 +189,7 @@ table SyscollectorUsersAttributes {
     // scan_id:string;
 }
 
-table SyscollectorGroupsAttributes {
+table syscollector_groups { // Renamed from SyscollectorGroupsAttributes
     item_id:string;
     name:string;
     gid:string;
@@ -246,8 +246,8 @@ union AttributesUnion {
     syscollector_packages,
     syscollector_ports,
     syscollector_processes,
-    SyscollectorUsersAttributes,
-    SyscollectorGroupsAttributes,
+    syscollector_users, // Changed
+    syscollector_groups, // Changed
     fim_file,
     fim_registry_key,
     fim_registry_value
