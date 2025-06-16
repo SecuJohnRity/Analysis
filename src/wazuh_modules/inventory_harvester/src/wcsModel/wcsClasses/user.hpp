@@ -1,3 +1,14 @@
+/*
+ * Wazuh Inventory Harvester - User class and related definitions
+ * Copyright (C) 2015, Wazuh Inc.
+ * October 2024.
+ *
+ * This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public
+ * License (version 2) as published by the FSF - Free Software
+ * Foundation.
+ */
+
 #ifndef _WCS_USER_HPP
 #define _WCS_USER_HPP
 

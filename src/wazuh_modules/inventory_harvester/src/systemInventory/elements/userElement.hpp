@@ -1,3 +1,14 @@
+/*
+ * Wazuh Inventory Harvester - User element builder
+ * Copyright (C) 2015, Wazuh Inc.
+ * October 2024.
+ *
+ * This program is free software; you can redistribute it
+ * and/or modify it under the terms of the GNU General Public
+ * License (version 2) as published by the FSF - Free Software
+ * Foundation.
+ */
+
 #ifndef USER_ELEMENT_HPP
 #define USER_ELEMENT_HPP
 
@@ -16,7 +27,13 @@ template <typename TContext>
 class UserElement final
 {
 public:
+    // LCOV_EXCL_START
+    /**
+     * @brief Class destructor.
+     *
+     */
     ~UserElement() = default;
+    // LCOV_EXCL_STOP
 
     static DataHarvester<InventoryUserHarvester> build(TContext* context)
     {
