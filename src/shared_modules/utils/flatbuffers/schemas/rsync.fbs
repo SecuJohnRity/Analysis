@@ -156,7 +156,8 @@ table syscollector_processes {
     vm_size:long;
 }
 
-table syscollector_users { // Renamed from SyscollectorUsersAttributes
+table syscollector_users {
+    scan_time:string; // Added as the first field
     item_id:string;
     name:string;
     uid:string;
@@ -185,11 +186,10 @@ table syscollector_users { // Renamed from SyscollectorUsersAttributes
     login_status:bool = false;
     login_type:string;
     login_tty:string;
-    // scan_time:string;
-    // scan_id:string;
 }
 
-table syscollector_groups { // Renamed from SyscollectorGroupsAttributes
+table syscollector_groups {
+    scan_time:string; // Added as the first field
     item_id:string;
     name:string;
     gid:string;
@@ -197,8 +197,6 @@ table syscollector_groups { // Renamed from SyscollectorGroupsAttributes
     uuid:string;
     is_hidden:bool = false;
     users:string;
-    // scan_time:string;
-    // scan_id:string;
 }
 
 table fim_file {
