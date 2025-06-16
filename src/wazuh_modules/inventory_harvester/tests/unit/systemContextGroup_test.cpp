@@ -211,9 +211,7 @@ TEST(GroupElementTest, CollectsGroupDataCorrectly_Delta) {
     ASSERT_EQ(result.data.group.description, mock_group_data.description);
     ASSERT_EQ(result.data.group.uuid, mock_group_data.uuid);
     ASSERT_EQ(result.data.group.is_hidden, mock_group_data.is_hidden);
-    std::vector<std::string> expected_users;
-    Utils::splitView(mock_group_data.users, ',', expected_users);
-    ASSERT_EQ(result.data.group.users, expected_users);
+    ASSERT_EQ(result.data.group.users, mock_group_data.users);
 }
 
 TEST(GroupElementTest, DeletesGroupDataCorrectly_Delta) {

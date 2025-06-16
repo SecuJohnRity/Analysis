@@ -336,12 +336,8 @@ TEST(UserElementTest, CollectsUserDataCorrectly_Delta) {
     ASSERT_EQ(result.data.user.password.max_days_between_changes, mock_user_data.password_max_days_between_changes);
     ASSERT_EQ(result.data.user.password.min_days_between_changes, mock_user_data.password_min_days_between_changes);
     ASSERT_EQ(result.data.user.password.warning_days_before_expiration, mock_user_data.password_warning_days_before_expiration);
-    std::vector<std::string> expected_roles;
-    Utils::splitView(mock_user_data.roles, ',', expected_roles);
-    ASSERT_EQ(result.data.user.roles, expected_roles);
-    std::vector<std::string> expected_groups;
-    Utils::splitView(mock_user_data.groups, ',', expected_groups);
-    ASSERT_EQ(result.data.user.groups, expected_groups);
+    ASSERT_EQ(result.data.user.roles, mock_user_data.roles);
+    ASSERT_EQ(result.data.user.groups, mock_user_data.groups);
     ASSERT_EQ(result.data.user.auth_failures.count, mock_user_data.auth_failures_count);
     ASSERT_EQ(result.data.user.auth_failures.timestamp, mock_user_data.auth_failures_timestamp);
     ASSERT_EQ(result.data.login.status, mock_user_data.login_status);
