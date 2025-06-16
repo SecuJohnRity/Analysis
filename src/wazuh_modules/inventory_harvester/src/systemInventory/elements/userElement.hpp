@@ -21,7 +21,6 @@
 #include "stringHelper.h" // For Utils::splitView
 
 #include <stdexcept> // For std::runtime_error, std::invalid_argument, std::out_of_range
-// <string>, <vector>, <memory> removed
 
 template <typename TContext>
 class UserElement final
@@ -42,59 +41,53 @@ public:
         {
             throw std::runtime_error("UserElement::build: Agent ID is empty.");
         }
-        // std::string agentId = std::string(agentId_sv); // Removed: use agentId_sv directly
 
         auto userItemId_sv = context->userItemId();
         if (userItemId_sv.empty())
         {
             throw std::runtime_error("UserElement::build: User Item ID is empty.");
         }
-        // std::string userItemId = std::string(userItemId_sv); // Removed
 
         DataHarvester<InventoryUserHarvester> element;
-        // Construct ID using string_view directly if possible, or ensure string concat is efficient
-        // For simplicity, if ID construction needs std::string, this might be a localized use.
-        // However, DataHarvester::id is likely std::string. Let's keep it simple for now.
         element.id = std::string(agentId_sv) + "_" + std::string(userItemId_sv);
         element.operation = "INSERTED";
 
-        InventoryUserHarvester& wcsUser = element.data;
+        // InventoryUserHarvester& wcsUser = element.data; // Line removed
 
-        wcsUser.agent.id = agentId_sv;
-        wcsUser.agent.name = context->agentName();
-        wcsUser.agent.version = context->agentVersion();
+        element.data.agent.id = agentId_sv;
+        element.data.agent.name = context->agentName();
+        element.data.agent.version = context->agentVersion();
 
         auto agentIp_sv = context->agentIp();
         if (!agentIp_sv.empty() && agentIp_sv.compare("any") != 0)
         {
-            wcsUser.agent.ip = agentIp_sv; // Direct assignment
-            wcsUser.host.ip = agentIp_sv;  // Direct assignment
+            element.data.agent.ip = agentIp_sv;
+            element.data.host.ip = agentIp_sv;
         } else {
-            wcsUser.agent.ip = "";
-            wcsUser.host.ip = "";
+            element.data.agent.ip = "";
+            element.data.host.ip = "";
         }
 
         auto& instancePolicyManager = PolicyHarvesterManager::instance();
-        wcsUser.wazuh.cluster.name = instancePolicyManager.getClusterName();
+        element.data.wazuh.cluster.name = instancePolicyManager.getClusterName();
         if (instancePolicyManager.getClusterStatus())
         {
-            // Assuming getClusterNodeType() and getClusterNodeName() return string_view or compatible
-            wcsUser.wazuh.cluster.node_type = instancePolicyManager.getClusterNodeType();
-            wcsUser.wazuh.cluster.node = instancePolicyManager.getClusterNodeName();
+            element.data.wazuh.cluster.node_type = instancePolicyManager.getClusterNodeType();
+            element.data.wazuh.cluster.node = instancePolicyManager.getClusterNodeName();
         }
 
-        wcsUser.login.status = context->userLoginStatus();
-        wcsUser.login.tty = context->userLoginTty();
-        wcsUser.login.type = context->userLoginType();
+        element.data.login.status = context->userLoginStatus();
+        element.data.login.tty = context->userLoginTty();
+        element.data.login.type = context->userLoginType();
 
-        wcsUser.user.id = context->userId();
-        wcsUser.user.name = context->userName();
+        element.data.user.id = context->userId();
+        element.data.user.name = context->userName();
 
         long gid_val = 0;
         unsigned long ugid_val = 0;
         std::string_view userGroupId_sv = context->userGroupId();
         if (!userGroupId_sv.empty()) {
-            std::string temp_str(userGroupId_sv); // stol needs null-terminated string
+            std::string temp_str(userGroupId_sv);
             try {
                 gid_val = std::stol(temp_str);
                 if (gid_val >= 0) {
@@ -103,46 +96,46 @@ public:
             } catch (const std::invalid_argument&) { /* default 0 */ }
               catch (const std::out_of_range&) { /* default 0 */ }
         }
-        wcsUser.user.group.id_signed = gid_val;
-        wcsUser.user.group.id = ugid_val;
+        element.data.user.group.id_signed = gid_val;
+        element.data.user.group.id = ugid_val;
 
-        wcsUser.user.home = context->userHome();
-        wcsUser.user.shell = context->userShell();
-        wcsUser.user.uuid = context->userUuid();
-        wcsUser.user.full_name = context->userFullName();
-        wcsUser.user.is_hidden = context->userIsHidden();
-        wcsUser.user.is_remote = context->userIsRemote();
-        wcsUser.user.created = context->userCreated();
-        wcsUser.user.last_login = context->userLastLogin();
+        element.data.user.home = context->userHome();
+        element.data.user.shell = context->userShell();
+        element.data.user.uuid = context->userUuid();
+        element.data.user.full_name = context->userFullName();
+        element.data.user.is_hidden = context->userIsHidden();
+        element.data.user.is_remote = context->userIsRemote();
+        element.data.user.created = context->userCreated();
+        element.data.user.last_login = context->userLastLogin();
 
         long uid_signed_val = 0;
         std::string_view userId_sv = context->userId();
         if (!userId_sv.empty()) {
-             std::string temp_str(userId_sv); // stol needs null-terminated string
+             std::string temp_str(userId_sv);
             try {
                 uid_signed_val = std::stol(temp_str);
             } catch (const std::invalid_argument&) { /* default 0 */ }
               catch (const std::out_of_range&) { /* default 0 */ }
         }
-        wcsUser.user.uid_signed = uid_signed_val;
+        element.data.user.uid_signed = uid_signed_val;
 
-        wcsUser.user.password.status = context->userPasswordStatus();
-        wcsUser.user.password.last_change = context->userPasswordLastChange();
-        wcsUser.user.password.expiration_date = context->userPasswordExpirationDate();
-        wcsUser.user.password.hash_algorithm = context->userPasswordHashAlgorithm();
-        wcsUser.user.password.inactive_days = context->userPasswordInactiveDays();
-        wcsUser.user.password.last_set_time = context->userPasswordLastSetTime();
-        wcsUser.user.password.max_days_between_changes = context->userPasswordMaxDays();
-        wcsUser.user.password.min_days_between_changes = context->userPasswordMinDays();
-        wcsUser.user.password.warning_days_before_expiration = context->userPasswordWarningDays();
+        element.data.user.password.status = context->userPasswordStatus();
+        element.data.user.password.last_change = context->userPasswordLastChange();
+        element.data.user.password.expiration_date = context->userPasswordExpirationDate();
+        element.data.user.password.hash_algorithm = context->userPasswordHashAlgorithm();
+        element.data.user.password.inactive_days = context->userPasswordInactiveDays();
+        element.data.user.password.last_set_time = context->userPasswordLastSetTime();
+        element.data.user.password.max_days_between_changes = context->userPasswordMaxDays();
+        element.data.user.password.min_days_between_changes = context->userPasswordMinDays();
+        element.data.user.password.warning_days_before_expiration = context->userPasswordWarningDays();
 
         auto roles_sv = context->userRoles();
-        if (!roles_sv.empty()) { Utils::splitView(roles_sv, ',', wcsUser.user.roles); }
+        if (!roles_sv.empty()) { Utils::splitView(roles_sv, ',', element.data.user.roles); }
         auto groups_sv = context->userGroups();
-        if (!groups_sv.empty()) { Utils::splitView(groups_sv, ',', wcsUser.user.groups); }
+        if (!groups_sv.empty()) { Utils::splitView(groups_sv, ',', element.data.user.groups); }
 
-        wcsUser.user.auth_failures.count = context->userAuthFailuresCount();
-        wcsUser.user.auth_failures.timestamp = context->userAuthFailuresTimestamp();
+        element.data.user.auth_failures.count = context->userAuthFailuresCount();
+        element.data.user.auth_failures.timestamp = context->userAuthFailuresTimestamp();
 
         return element;
     }
@@ -154,14 +147,12 @@ public:
         {
             throw std::runtime_error("UserElement::deleteElement: Agent ID is empty.");
         }
-        // std::string agentId = std::string(agentId_sv); // Removed
 
         auto userItemId_sv = context->userItemId();
         if (userItemId_sv.empty())
         {
             throw std::runtime_error("UserElement::deleteElement: User Item ID is empty.");
         }
-        // std::string userItemId = std::string(userItemId_sv); // Removed
 
         NoDataHarvester element;
         element.id = std::string(agentId_sv) + "_" + std::string(userItemId_sv);
