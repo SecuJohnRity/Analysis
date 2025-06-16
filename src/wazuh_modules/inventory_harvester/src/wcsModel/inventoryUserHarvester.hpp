@@ -4,9 +4,8 @@
 #include "reflectiveJson.hpp"
 #include "wcsClasses/agent.hpp"
 #include "wcsClasses/wazuh.hpp"
-#include "wcsClasses/user.hpp" // Added this line
-#include <string>
-#include <vector>
+#include "wcsClasses/user.hpp"
+// <string> and <vector> removed
 
 // Main harvester struct
 struct InventoryUserHarvester final {

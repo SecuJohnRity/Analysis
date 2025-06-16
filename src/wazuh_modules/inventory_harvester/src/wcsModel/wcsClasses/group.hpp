@@ -2,17 +2,17 @@
 #define _WCS_GROUP_HPP
 
 #include "reflectiveJson.hpp"
-#include <string>
-#include <vector>
+#include <string_view> // Added for std::string_view
+#include <vector>      // Kept for std::vector
 
 struct Group {
-    std::string description;
+    std::string_view description; // Changed to string_view
     unsigned long id = 0;
     long id_signed = 0;
     bool is_hidden = false;
-    std::string name;
-    std::vector<std::string> users;
-    std::string uuid;
+    std::string_view name;        // Changed to string_view
+    std::vector<std::string_view> users; // Changed to vector of string_view
+    std::string_view uuid;        // Changed to string_view
 
     REFLECTABLE(MAKE_FIELD("description", &Group::description),
                 MAKE_FIELD("id", &Group::id),

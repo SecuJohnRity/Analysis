@@ -2,52 +2,55 @@
 #define _WCS_USER_HPP
 
 #include "reflectiveJson.hpp"
-#include <string>
-#include <vector>
+#include <string_view> // Added for std::string_view
+#include <vector>      // Kept for std::vector
+// #include <string> // Should be removed if present previously
 
 // Forward declaration if Host is in a different header or define basic Host here
+// Assuming Host struct is simple and defined here. If it's complex and shared, it might need its own file.
 struct Host {
-    std::string ip;
+    std::string_view ip; // Changed
     REFLECTABLE(MAKE_FIELD("ip", &Host::ip));
 };
 
 struct Login {
     bool status = false;
-    std::string tty;
-    std::string type;
+    std::string_view tty; // Changed
+    std::string_view type; // Changed
     REFLECTABLE(MAKE_FIELD("status", &Login::status),
                 MAKE_FIELD("tty", &Login::tty),
                 MAKE_FIELD("type", &Login::type));
 };
 
-struct Process {
+struct Process { // Assuming Process remains simple with only pid
     long pid = 0;
     REFLECTABLE(MAKE_FIELD("pid", &Process::pid));
 };
 
 struct AuthFailures {
     int count = 0;
-    std::string timestamp; // Assuming ISO8601 date string
+    std::string_view timestamp; // Changed (Assuming ISO8601 date string)
     REFLECTABLE(MAKE_FIELD("count", &AuthFailures::count),
                 MAKE_FIELD("timestamp", &AuthFailures::timestamp));
 };
 
-struct UserGroupInfo { // Renamed from Group to avoid conflict if a top-level Group struct is needed
-    unsigned long id = 0; // Assuming this is 'id' from user.group.id
+// UserGroupInfo is fine as it only contains numeric types and REFLECTABLE
+struct UserGroupInfo {
+    unsigned long id = 0;
     long id_signed = 0;
     REFLECTABLE(MAKE_FIELD("id", &UserGroupInfo::id),
                 MAKE_FIELD("id_signed", &UserGroupInfo::id_signed));
 };
 
 struct Password {
-    std::string expiration_date; // Assuming ISO8601 date string
-    std::string hash_algorithm;
+    std::string_view expiration_date; // Changed (Assuming ISO8601 date string)
+    std::string_view hash_algorithm;  // Changed
     int inactive_days = 0;
-    long last_change = 0; // Assuming this is an epoch timestamp or similar numeric value
-    std::string last_set_time; // Assuming ISO8601 date string
+    long last_change = 0;
+    std::string_view last_set_time;   // Changed (Assuming ISO8601 date string)
     int max_days_between_changes = 0;
     int min_days_between_changes = 0;
-    std::string status;
+    std::string_view status;          // Changed
     int warning_days_before_expiration = 0;
     REFLECTABLE(MAKE_FIELD("expiration_date", &Password::expiration_date),
                 MAKE_FIELD("hash_algorithm", &Password::hash_algorithm),
@@ -62,22 +65,22 @@ struct Password {
 
 struct User {
     AuthFailures auth_failures;
-    std::string created; // Assuming ISO8601 date string
-    std::string full_name;
-    UserGroupInfo group; // This is user.group in the JSON
-    std::vector<std::string> groups; // This is user.groups in the JSON
-    std::string home;
-    std::string id;
+    std::string_view created; // Changed (Assuming ISO8601 date string)
+    std::string_view full_name; // Changed
+    UserGroupInfo group;
+    std::vector<std::string_view> groups; // Changed to vector of string_view
+    std::string_view home;    // Changed
+    std::string_view id;      // Changed
     bool is_hidden = false;
     bool is_remote = false;
-    std::string last_login; // Assuming ISO8601 date string
-    std::string name;
+    std::string_view last_login; // Changed (Assuming ISO8601 date string)
+    std::string_view name;       // Changed
     Password password;
-    std::vector<std::string> roles;
-    std::string shell;
-    std::string type;
-    long uid_signed = 0; // Corresponds to user.uid_signed
-    std::string uuid;
+    std::vector<std::string_view> roles; // Changed to vector of string_view
+    std::string_view shell;   // Changed
+    std::string_view type;    // Changed
+    long uid_signed = 0;
+    std::string_view uuid;    // Changed
 
     REFLECTABLE(MAKE_FIELD("auth_failures", &User::auth_failures),
                 MAKE_FIELD("created", &User::created),

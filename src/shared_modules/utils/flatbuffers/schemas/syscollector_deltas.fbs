@@ -151,7 +151,7 @@ table dbsync_packages {
     item_id:string;
 }
 
-table DbsyncUsers {
+table dbsync_users { // Renamed from DbsyncUsers
     item_id:string;
     name:string;
     uid:string; // User ID (e.g., "1001")
@@ -184,7 +184,7 @@ table DbsyncUsers {
     // scan_id:string; // Common field, add if needed
 }
 
-table DbsyncGroups {
+table dbsync_groups { // Renamed from DbsyncGroups
     item_id:string;
     name:string;
     gid:string; // Group ID (e.g., "1001")
@@ -206,8 +206,8 @@ union Provider {
     dbsync_packages,
     dbsync_hotfixes,
     dbsync_processes,
-    DbsyncUsers,
-    DbsyncGroups
+    dbsync_users, // Changed
+    dbsync_groups // Changed
 }
 
 table AgentInfo {
