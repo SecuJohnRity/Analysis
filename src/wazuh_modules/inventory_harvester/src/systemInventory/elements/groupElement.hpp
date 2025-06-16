@@ -94,10 +94,7 @@ public:
         element.data.group.uuid = context->groupUuid();
         element.data.group.is_hidden = context->groupIsHidden();
 
-        auto users_sv = context->groupUsers();
-        if (!users_sv.empty()) {
-            Utils::splitView(users_sv, ',', element.data.group.users);
-        }
+        element.data.group.users = context->groupUsers(); // Direct assignment
 
         return element;
     }

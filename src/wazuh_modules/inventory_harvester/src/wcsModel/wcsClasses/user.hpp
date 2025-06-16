@@ -13,9 +13,9 @@
 #define _WCS_USER_HPP
 
 #include "reflectiveJson.hpp"
-#include <string_view> // Added for std::string_view
-#include <vector>      // Kept for std::vector
+#include <string_view>
 // #include <string> // Should be removed if present previously
+// <vector> removed
 
 // Forward declaration if Host is in a different header or define basic Host here
 // Assuming Host struct is simple and defined here. If it's complex and shared, it might need its own file.
@@ -79,7 +79,7 @@ struct User final {
     std::string_view created; // Changed (Assuming ISO8601 date string)
     std::string_view full_name; // Changed
     UserGroupInfo group;
-    std::vector<std::string_view> groups; // Changed to vector of string_view
+    std::string_view groups; // CHANGED
     std::string_view home;    // Changed
     std::string_view id;      // Changed
     bool is_hidden = false;
@@ -87,7 +87,7 @@ struct User final {
     std::string_view last_login; // Changed (Assuming ISO8601 date string)
     std::string_view name;       // Changed
     Password password;
-    std::vector<std::string_view> roles; // Changed to vector of string_view
+    std::string_view roles; // CHANGED
     std::string_view shell;   // Changed
     std::string_view type;    // Changed
     long uid_signed = 0;
