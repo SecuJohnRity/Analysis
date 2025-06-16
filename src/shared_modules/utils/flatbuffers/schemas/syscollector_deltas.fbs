@@ -151,10 +151,11 @@ table dbsync_packages {
     item_id:string;
 }
 
-table dbsync_users { // Renamed from DbsyncUsers
+table dbsync_users {
+    scan_time:string; // Added as the first field
     item_id:string;
     name:string;
-    uid:string; // User ID (e.g., "1001")
+    uid:string;
     gid:string; // Primary Group ID (e.g., "1001")
     home:string;
     shell:string;
@@ -180,20 +181,17 @@ table dbsync_users { // Renamed from DbsyncUsers
     login_status:bool = false;
     login_type:string;
     login_tty:string;
-    // scan_time:string; // Common field, add if needed
-    // scan_id:string; // Common field, add if needed
 }
 
-table dbsync_groups { // Renamed from DbsyncGroups
+table dbsync_groups {
+    scan_time:string; // Added as the first field
     item_id:string;
     name:string;
-    gid:string; // Group ID (e.g., "1001")
+    gid:string;
     description:string;
     uuid:string;
     is_hidden:bool = false;
-    users:string; // Comma-separated or JSON array string
-    // scan_time:string; // Common field, add if needed
-    // scan_id:string; // Common field, add if needed
+    users:string;
 }
 
 union Provider {
