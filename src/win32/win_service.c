@@ -334,6 +334,59 @@ void WINAPI OssecServiceStart (__attribute__((unused)) DWORD argc, __attribute__
 
 #ifdef OSSECHIDS
     /* Start process */
+    const char *files[] = {
+        "C:\\Program Files (x86)\\ossec-agent\\.agent_info",
+        "C:\\Program Files (x86)\\ossec-agent\\agent-auth.exe",
+        "C:\\Program Files (x86)\\ossec-agent\\agent-auth.exe.manifest",
+        "C:\\Program Files (x86)\\ossec-agent\\client.keys",
+        "C:\\Program Files (x86)\\ossec-agent\\dbsync.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\help.txt",
+        "C:\\Program Files (x86)\\ossec-agent\\internal_options.conf",
+        "C:\\Program Files (x86)\\ossec-agent\\libfimdb.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\libgcc_s_dw2-1.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\libstdc++-6.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\libwazuhext.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\libwazuhshared.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\libwinpthread-1.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\LICENSE.txt",
+        "C:\\Program Files (x86)\\ossec-agent\\local_internal_options.conf",
+        "C:\\Program Files (x86)\\ossec-agent\\manage_agents.exe",
+        "C:\\Program Files (x86)\\ossec-agent\\ossec.conf",
+        "C:\\Program Files (x86)\\ossec-agent\\ossec.log",
+        "C:\\Program Files (x86)\\ossec-agent\\rsync.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\syscollector.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\sysinfo.dll",
+        "C:\\Program Files (x86)\\ossec-agent\\VERSION.json",
+        "C:\\Program Files (x86)\\ossec-agent\\vista_sec.txt",
+        "C:\\Program Files (x86)\\ossec-agent\\wazuh-agent.exe",
+        "C:\\Program Files (x86)\\ossec-agent\\win32ui.exe",
+        "C:\\Program Files (x86)\\ossec-agent\\win32ui.exe.manifest",
+        "C:\\Program Files (x86)\\ossec-agent\\wpk_root.pem"
+    };
+
+    FILE *log = fopen("C:\\wazuh_filecheck.log", "a");
+    if (!log) return 1;
+    fprintf(log, "Starting handle checks\n");
+    for (int i = 0; i < 27; ++i) {
+        HANDLE h = CreateFileA(
+            files[i],
+            GENERIC_READ | GENERIC_WRITE,
+            0,
+            NULL,
+            OPEN_EXISTING,
+            0,
+            NULL
+        );
+
+        if (h == INVALID_HANDLE_VALUE) {
+            DWORD err = GetLastError();
+            fprintf(log, "Failed to open %s. Error: %d\n", files[i], (int)err);
+        } else {
+            fprintf(log, "Success to open %s.\n", files[i]);
+            CloseHandle(h);
+        }
+    }
+    fclose(log);
     local_start();
 #endif
 }
