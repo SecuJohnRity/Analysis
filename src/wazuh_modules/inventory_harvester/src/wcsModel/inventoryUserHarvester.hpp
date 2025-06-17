@@ -4,17 +4,18 @@
 #include "reflectiveJson.hpp"
 #include "wcsClasses/agent.hpp"
 #include "wcsClasses/wazuh.hpp"
-#include "wcsClasses/user.hpp"
+#include "wcsClasses/user.hpp" // This now provides User::Host, User::Login, User::Process
+// host.hpp and process.hpp includes removed
 // <string> and <vector> removed
 
 // Main harvester struct
 struct InventoryUserHarvester final {
     Agent agent;
-    User user; // User and related structs are now included from wcsClasses/user.hpp
+    User user;
     Wazuh wazuh;
-    Host host;
-    Login login;
-    Process process;
+    User::Host host;     // CHANGED
+    User::Login login;   // CHANGED
+    User::Process process; // CHANGED
 
     REFLECTABLE(MAKE_FIELD("agent", &InventoryUserHarvester::agent),
                 MAKE_FIELD("user", &InventoryUserHarvester::user),
