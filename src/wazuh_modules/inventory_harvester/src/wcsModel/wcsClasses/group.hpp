@@ -1,7 +1,7 @@
 /*
- * Wazuh Inventory Harvester - Group class definition
+ * Wazuh inventory harvester
  * Copyright (C) 2015, Wazuh Inc.
- * October 2024.
+ * June 16, 2025.
  *
  * This program is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public
@@ -14,16 +14,15 @@
 
 #include "reflectiveJson.hpp"
 #include <string_view>
-#include <cstdint> // Added for std::int64_t
-// <vector> removed
+#include <cstdint>
 
 struct Group final {
     std::string_view description;
-    std::int64_t id = 0;
-    std::int64_t id_signed = 0;
+    std::int64_t id = 0; // Changed to std::int64_t by user
+    std::int64_t id_signed = 0; // Changed to std::int64_t by user
     bool is_hidden = false;
     std::string_view name;
-    std::string_view users; // CHANGED
+    std::string_view users;
     std::string_view uuid;
 
     REFLECTABLE(MAKE_FIELD("description", &Group::description),

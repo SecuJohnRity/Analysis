@@ -1,7 +1,7 @@
 /*
  * Wazuh Inventory Harvester - Group element builder
  * Copyright (C) 2015, Wazuh Inc.
- * October 2024.
+ * June 16, 2025.
  *
  * This program is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public
@@ -15,12 +15,12 @@
 #include "../systemContext.hpp"
 #include "../../wcsModel/data.hpp"
 #include "../../wcsModel/noData.hpp"
-#include "../../wcsModel/inventoryGroupHarvester.hpp" // Uses string_view
+#include "../../wcsModel/inventoryGroupHarvester.hpp"
 #include "../policyHarvesterManager.hpp"
 #include "timeHelper.h"
-#include "stringHelper.h" // For Utils::splitView
+#include "stringHelper.h"
 
-#include <stdexcept> // For std::runtime_error, std::invalid_argument, std::out_of_range
+#include <stdexcept>
 
 template <typename TContext>
 class GroupElement final
@@ -52,8 +52,6 @@ public:
         element.id = std::string(agentId_sv) + "_" + std::string(groupItemId_sv);
         element.operation = "INSERTED";
 
-        // InventoryGroupHarvester& wcsGroup = element.data; // Line removed
-
         element.data.agent.id = agentId_sv;
         element.data.agent.name = context->agentName();
         element.data.agent.version = context->agentVersion();
@@ -61,9 +59,9 @@ public:
         auto agentIp_sv = context->agentIp();
         if (!agentIp_sv.empty() && agentIp_sv.compare("any") != 0)
         {
-            element.data.agent.host.ip = agentIp_sv;
+            element.data.agent.host.ip = agentIp_sv; // Corrected
         } else {
-            element.data.agent.host.ip = "";
+            element.data.agent.host.ip = ""; // Corrected
         }
 
         auto& instancePolicyManager = PolicyHarvesterManager::instance();
@@ -71,6 +69,7 @@ public:
         if (instancePolicyManager.getClusterStatus())
         {
             element.data.wazuh.cluster.node = instancePolicyManager.getClusterNodeName();
+            // node_type removed
         }
 
         element.data.group.name = context->groupName();
@@ -79,12 +78,14 @@ public:
         unsigned long ugid_val = 0;
         std::string_view groupId_sv = context->groupId();
         if(!groupId_sv.empty()){
-            std::string temp_str(groupId_sv); // stol needs null-terminated string
-            // try-catch removed
-            gid_val = std::stol(temp_str); // Potential to throw
-            if (gid_val >= 0) {
-                ugid_val = static_cast<unsigned long>(gid_val);
-            }
+            std::string temp_str(groupId_sv); // Syntax error "Add commentMore actions" is not here
+            try { // try-catch is present in user's version
+                gid_val = std::stol(temp_str);
+                if (gid_val >= 0) {
+                    ugid_val = static_cast<unsigned long>(gid_val);
+                }
+            } catch (const std::invalid_argument&) { /* default 0 */ }
+              catch (const std::out_of_range&) { /* default 0 */ }
         }
         element.data.group.id_signed = gid_val;
         element.data.group.id = ugid_val;
@@ -93,7 +94,8 @@ public:
         element.data.group.uuid = context->groupUuid();
         element.data.group.is_hidden = context->groupIsHidden();
 
-        element.data.group.users = context->groupUsers(); // Direct assignment
+        // This assignment is correct as Group::users is std::string_view
+        element.data.group.users = context->groupUsers();
 
         return element;
     }

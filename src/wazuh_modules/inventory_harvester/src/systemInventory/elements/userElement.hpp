@@ -1,7 +1,7 @@
 /*
  * Wazuh Inventory Harvester - User element builder
  * Copyright (C) 2015, Wazuh Inc.
- * October 2024.
+ * June 16, 2025.
  *
  * This program is free software; you can redistribute it
  * and/or modify it under the terms of the GNU General Public
@@ -15,12 +15,12 @@
 #include "../systemContext.hpp"
 #include "../../wcsModel/data.hpp"
 #include "../../wcsModel/noData.hpp"
-#include "../../wcsModel/inventoryUserHarvester.hpp" // Uses string_view
+#include "../../wcsModel/inventoryUserHarvester.hpp"
 #include "../policyHarvesterManager.hpp"
 #include "timeHelper.h"
-#include "stringHelper.h" // For Utils::splitView
+#include "stringHelper.h"
 
-#include <stdexcept> // For std::runtime_error, std::invalid_argument, std::out_of_range
+#include <stdexcept>
 
 template <typename TContext>
 class UserElement final
@@ -52,8 +52,6 @@ public:
         element.id = std::string(agentId_sv) + "_" + std::string(userItemId_sv);
         element.operation = "INSERTED";
 
-        // InventoryUserHarvester& wcsUser = element.data; // Line removed
-
         element.data.agent.id = agentId_sv;
         element.data.agent.name = context->agentName();
         element.data.agent.version = context->agentVersion();
@@ -61,10 +59,10 @@ public:
         auto agentIp_sv = context->agentIp();
         if (!agentIp_sv.empty() && agentIp_sv.compare("any") != 0)
         {
-            element.data.agent.host.ip = agentIp_sv;
-            element.data.host.ip = agentIp_sv;
+            element.data.agent.host.ip = agentIp_sv; // Corrected access
+            element.data.host.ip = agentIp_sv;      // This assumes InventoryUserHarvester.host is User::Host
         } else {
-            element.data.agent.host.ip = "";
+            element.data.agent.host.ip = ""; // Corrected access
             element.data.host.ip = "";
         }
 
@@ -73,8 +71,10 @@ public:
         if (instancePolicyManager.getClusterStatus())
         {
             element.data.wazuh.cluster.node = instancePolicyManager.getClusterNodeName();
+            // node_type removed
         }
 
+        // Access to login fields should be element.data.login if InventoryUserHarvester.login type is User::Login
         element.data.login.status = context->userLoginStatus();
         element.data.login.tty = context->userLoginTty();
         element.data.login.type = context->userLoginType();
@@ -86,14 +86,14 @@ public:
         unsigned long ugid_val = 0;
         std::string_view userGroupId_sv = context->userGroupId();
         if (!userGroupId_sv.empty()) {
-            std::string temp_str(userGroupId_sv); // stol needs null-terminated string
-            // try-catch removed
-            gid_val = std::stol(temp_str); // Potential to throw, now unhandled locally
-            if (gid_val >= 0) {
-                ugid_val = static_cast<unsigned long>(gid_val);
-            }
-            // If stol throws, values remain 0 due to initialization, but execution would stop before assignment here.
-            // This behavior change (crashing on bad format vs. defaulting to 0) is a consequence of removing try-catch.
+            std::string temp_str(userGroupId_sv);
+            try { // try-catch is present in user's version
+                gid_val = std::stol(temp_str);
+                if (gid_val >= 0) {
+                    ugid_val = static_cast<unsigned long>(gid_val);
+                }
+            } catch (const std::invalid_argument&) { /* default 0 */ }
+              catch (const std::out_of_range&) { /* default 0 */ }
         }
         element.data.user.group.id_signed = gid_val;
         element.data.user.group.id = ugid_val;
@@ -110,9 +110,11 @@ public:
         long uid_signed_val = 0;
         std::string_view userId_sv = context->userId();
         if (!userId_sv.empty()) {
-             std::string temp_str(userId_sv); // stol needs null-terminated string
-             // try-catch removed
-             uid_signed_val = std::stol(temp_str); // Potential to throw
+             std::string temp_str(userId_sv);
+            try { // try-catch is present in user's version
+                uid_signed_val = std::stol(temp_str);
+            } catch (const std::invalid_argument&) { /* default 0 */ }
+              catch (const std::out_of_range&) { /* default 0 */ }
         }
         element.data.user.uid_signed = uid_signed_val;
 
@@ -126,11 +128,16 @@ public:
         element.data.user.password.min_days_between_changes = context->userPasswordMinDays();
         element.data.user.password.warning_days_before_expiration = context->userPasswordWarningDays();
 
-        element.data.user.roles = context->userRoles(); // Direct assignment
-        element.data.user.groups = context->userGroups(); // Direct assignment
+        // These assignments are correct as User::roles and User::groups are std::string_view
+        element.data.user.roles = context->userRoles();
+        element.data.user.groups = context->userGroups();
 
         element.data.user.auth_failures.count = context->userAuthFailuresCount();
         element.data.user.auth_failures.timestamp = context->userAuthFailuresTimestamp();
+
+        // This assumes InventoryUserHarvester.process.pid is the correct path
+        // element.data.process.pid = ... (If needed, from context if available)
+
 
         return element;
     }

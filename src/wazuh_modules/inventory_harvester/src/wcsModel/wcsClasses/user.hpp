@@ -14,7 +14,7 @@
 
 #include "reflectiveJson.hpp"
 #include <string_view>
-#include <cstdint> // Added for std::int64_t
+#include <cstdint>
 
 struct User final {
     struct Host final {
@@ -32,20 +32,20 @@ struct User final {
     };
 
     struct Process final {
-        std::int64_t pid = 0;
+        std::int64_t pid = 0; // Changed to std::int64_t by user
         REFLECTABLE(MAKE_FIELD("pid", &Process::pid));
     };
 
     struct AuthFailures final {
-        std::int64_t count = 0;
+        std::int64_t count = 0; // Changed to std::int64_t by user
         std::string_view timestamp;
         REFLECTABLE(MAKE_FIELD("count", &AuthFailures::count),
                     MAKE_FIELD("timestamp", &AuthFailures::timestamp));
     };
 
     struct UserGroupInfo final {
-        std::int64_t id = 0;
-        std::int64_t id_signed = 0;
+        std::int64_t id = 0; // Changed to std::int64_t by user
+        std::int64_t id_signed = 0; // Changed to std::int64_t by user
         REFLECTABLE(MAKE_FIELD("id", &UserGroupInfo::id),
                     MAKE_FIELD("id_signed", &UserGroupInfo::id_signed));
     };
@@ -53,13 +53,13 @@ struct User final {
     struct Password final {
         std::string_view expiration_date;
         std::string_view hash_algorithm;
-        std::int64_t inactive_days = 0;
-        std::int64_t last_change = 0;
+        std::int64_t inactive_days = 0; // Changed to std::int64_t by user
+        std::int64_t last_change = 0; // Changed to std::int64_t by user
         std::string_view last_set_time;
-        std::int64_t max_days_between_changes = 0;
-        std::int64_t min_days_between_changes = 0;
+        std::int64_t max_days_between_changes = 0; // Changed to std::int64_t by user
+        std::int64_t min_days_between_changes = 0; // Changed to std::int64_t by user
         std::string_view status;
-        std::int64_t warning_days_before_expiration = 0;
+        std::int64_t warning_days_before_expiration = 0; // Changed to std::int64_t by user
         REFLECTABLE(MAKE_FIELD("expiration_date", &Password::expiration_date),
                     MAKE_FIELD("hash_algorithm", &Password::hash_algorithm),
                     MAKE_FIELD("inactive_days", &Password::inactive_days),
@@ -86,7 +86,7 @@ struct User final {
     std::string_view roles;
     std::string_view shell;
     std::string_view type;
-    std::int64_t uid_signed = 0;
+    std::int64_t uid_signed = 0; // Changed to std::int64_t by user
     std::string_view uuid;
 
     REFLECTABLE(MAKE_FIELD("auth_failures", &User::auth_failures),
