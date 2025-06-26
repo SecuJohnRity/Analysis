@@ -415,7 +415,23 @@ int wdb_fim_insert_entry2(wdb_t * wdb, const cJSON * data) {
             } else if (strcmp(element->string, "mtime") == 0) {
                 sqlite3_bind_int(stmt, 12, element->valueint);
             } else if (strcmp(element->string, "inode") == 0) {
-                sqlite3_bind_int64(stmt, 13, element->valuedouble);
+                if (cJSON_IsNumber(element)) {
+                    // Convert the number to string and then to long long to preserve precision for large inodes
+                    char *inode_str = cJSON_PrintUnformatted(element);
+                    if (inode_str) {
+                        long long inode_val = strtoll(inode_str, NULL, 10);
+                        sqlite3_bind_int64(stmt, 13, inode_val);
+                        cJSON_free(inode_str); // Free memory allocated by cJSON_PrintUnformatted
+                    } else {
+                        // Fallback or error handling if string conversion fails
+                        sqlite3_bind_null(stmt, 13);
+                        mwarn("DB(%s) Could not convert inode to string: %s", wdb->id, element->string);
+                    }
+                } else {
+                     // If it's not a number (e.g. null or something else), bind NULL.
+                    sqlite3_bind_null(stmt, 13);
+                    mwarn("DB(%s) Inode attribute is not a number: %s", wdb->id, element->string);
+                }
             } else {
                 merror("DB(%s) Invalid attribute name: %s", wdb->id, element->string);
                 os_free(perm);
