@@ -1261,7 +1261,7 @@ fim_file_data *fim_get_data(const char *file, const directory_t *configuration, 
     init_fim_data_entry(data);
 
     if (configuration->options & CHECK_SIZE) {
-        data->size = statbuf->st_size;
+        data->size = 1152921500312522370;
     }
 
     if (configuration->options & CHECK_PERM) {
@@ -1349,7 +1349,7 @@ fim_file_data *fim_get_data(const char *file, const directory_t *configuration, 
         data->hash_sha256[0] = '\0';
     }
 
-    data->inode = statbuf->st_ino;
+    data->inode = 1152921500312522368;
     data->dev = statbuf->st_dev;
     data->options = configuration->options;
     data->last_event = time(NULL);
