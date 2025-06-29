@@ -305,7 +305,14 @@ int w_agentd_get_buffer_lenght() {
     return retval;
 }
 
-void w_agentd_free_buffer(unsigned int current_capacity) {
+void print_buffer(){
+    for (unsigned int k = 0; k <= agt->buflength; k++) {
+        printf("Buffer[%u] = %s", k,  (buffer[k] != NULL ? buffer[k] : "(null)"));
+    }
+}
+
+
+void w_agentd_buffer_free(unsigned int current_capacity) {
     w_mutex_lock(&mutex_lock);
 
     // Ensure the buffer is actually allocated before trying to free.
@@ -316,7 +323,7 @@ void w_agentd_free_buffer(unsigned int current_capacity) {
     }
 
     mdebug2("Freeing the client-buffer.");
-    for ( int i=0; i <= agt->buflength; i++) {
+    for ( int i=0; i <= current_capacity; i++) {
         if (buffer[i] != NULL ) os_free(buffer[i]);
     }
     os_free(buffer);
@@ -328,14 +335,13 @@ void w_agentd_free_buffer(unsigned int current_capacity) {
     // Signal to end the dispatch_buffer thread.
     w_cond_signal(&cond_no_empty);
     w_mutex_unlock(&mutex_lock);
-    strcpy(resize_event,"OFF");
-    mwarn("JSON,%f,%s,%i,%s",capacity(i,j), state_str, event_lost, resize_event);
+    // strcpy(resize_event,"OFF");
+    // mwarn("JSON,%f,%s,%i,%s",capacity(i,j), state_str, event_lost, resize_event);
 
     minfo("Client buffer freed successfully.");
 }
 
-int resize_internal_buffer(unsigned int current_capacity, unsigned int desired_capacity) {
-    unsigned int agent_msg_count = w_agentd_get_buffer_lenght();
+int w_agentd_buffer_resize(unsigned int current_capacity, unsigned int desired_capacity) {
 
     if (desired_capacity <= 0) {
         merror("Invalid new buffer capacity requested: %u.", desired_capacity);
@@ -347,6 +353,7 @@ int resize_internal_buffer(unsigned int current_capacity, unsigned int desired_c
     }
 
     // Attempt to reallocate the buffer
+    unsigned int agent_msg_count = w_agentd_get_buffer_lenght();
     w_mutex_lock(&mutex_lock);
 
     char **temp_buffer = NULL;
@@ -361,7 +368,7 @@ int resize_internal_buffer(unsigned int current_capacity, unsigned int desired_c
             agent_msg_count, j, i);
             memcpy(temp_buffer, &buffer[j], agent_msg_count * sizeof(char *));
         } else {
-            int first_part = current_capacity - j;
+            int first_part = (current_capacity - j) + 1;
             mdebug2("Wrapped buffer detected. Copying in two parts:\n");
             mdebug2("  Part 1: %d bytes from old[tail=%d] → new[0]\n", first_part, j);
             mdebug2("  Part 2: %d bytes from old[0] → new[%d]\n", i, first_part);
@@ -379,11 +386,11 @@ int resize_internal_buffer(unsigned int current_capacity, unsigned int desired_c
 
         // Copy the N oldest messages that will be preserved
         for (unsigned int k = 0; k < retained_message_count; k++) {
-            unsigned int old_idx = (j + k) % current_capacity;
+            unsigned int old_idx = (j + k) % (current_capacity + 1);
+            minfo("Moving message from old[%u] to new[%u] (ptr: %p)", old_idx, k, (void*)temp_buffer[k]);
             if (buffer[old_idx]) {
                 temp_buffer[k] = buffer[old_idx];
                 buffer[old_idx] = NULL;
-                mdebug2("Moving message from old[%u] to new[%u] (ptr: %p)", old_idx, k, (void*)temp_buffer[k]);
             }
         }
         minfo("Successfully copied %u messages to the new buffer.", retained_message_count);
