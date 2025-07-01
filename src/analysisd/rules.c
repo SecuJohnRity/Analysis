@@ -571,6 +571,7 @@ int Rules_OP_ReadRules(const char *rulefile, RuleNode **r_node, ListNode **l_nod
 
                     } else if (strcasecmp(rule_tmp_params.rule_arr_opt[k]->element, xml_group) == 0) {
                         config_ruleinfo->group = loadmemory(config_ruleinfo->group, rule_tmp_params.rule_arr_opt[k]->content, log_msg);
+                        config_ruleinfo->group = wstr_replace(config_ruleinfo->group, "\n", "");
 
                     } else if (strcasecmp(rule_tmp_params.rule_arr_opt[k]->element, xml_comment) == 0) {
 
