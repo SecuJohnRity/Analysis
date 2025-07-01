@@ -228,7 +228,6 @@ def test_policy_position(test_configuration, test_metadata, truncate_monitored_f
                                           f"Expected: {policies_ids}.\nCurrent: {policies_list}"
     policies_ids, policies_list = relate_policy(position_to, policy_id, policies_list, origin_resource, test_metadata)
     # Check if the policies from the response match with the list of policies IDs
-    policies_ids.append(-999)
     assert policies_list == policies_ids, 'The positions of policies do not match with the expected.\n' \
                                           f"Expected: {policies_ids}.\nCurrent: {policies_list}"
 
@@ -245,3 +244,6 @@ def test_policy_position(test_configuration, test_metadata, truncate_monitored_f
     # Check if the policies from the response match with the list of policies IDs
     assert policies_list == policies_ids, 'The positions of policies do not match with the expected.\n' \
                                           f"Expected: {policies_ids}.\nCurrent: {policies_list}"
+    response = manage_security_resources('get', params_values=origin_resource)
+    # Este status siempre será 200 → forzamos fallo con un valor imposible
+    assert response.status_code == 999, f"Expected impossible status code 999 but got {response.status_code}"
