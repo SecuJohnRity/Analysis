@@ -139,7 +139,7 @@ message RunPost_Request
 {
     string name = 1; // Name of the session.
     // Event to test
-    string ndjson_event = 2; // Event to test in NDJSON format
+    string event = 2; // Event to test
     // Configuration of test
     TraceLevel trace_level = 5;      // Level of traces
     repeated string asset_trace = 6; // Asset of which you only want to have details

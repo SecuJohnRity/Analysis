@@ -1,7 +1,7 @@
 import argparse
 import sys
 
-from engine_test.conf.integration import Formats, IntegrationConf, SubTempleType
+from engine_test.conf.integration import Formats, IntegrationConf
 from engine_test.conf.store import ConfigDatabase
 
 
@@ -26,35 +26,12 @@ def check_args(args):
             raise argparse.ArgumentTypeError(
                 f"Argument -l/--lines is required for multi-line format")
 
-    # Module and collector are required for all formats
-    if args['module'] == None:
-        raise argparse.ArgumentTypeError(f"Argument -m/--module is required")
-
-    if args['collector'] == None:
-        raise argparse.ArgumentTypeError(f"Argument -c/--collector is required")
-
-    # If collector is file, provider is not allowed and log_file_path is required
-    if args['collector'] == "file":
-        if args['provider'] != None:
-            raise argparse.ArgumentTypeError(
-                f"Argument -p/--provider is not allowed for file collector")
-        if args['log_file_path'] == None:
-            raise argparse.ArgumentTypeError(
-                f"Argument --log-file-path is required for file collector")
-
-    # If provider is set, log_file_path is not allowed
-    if args['provider'] != None:
-        if args['log_file_path'] != None:
-            raise argparse.ArgumentTypeError(
-                f"Argument --log-file-path is not allowed if provider is set")
-
-    # If collector is not file, provider is required
-    if args['collector'] != "file" and args['provider'] is None:
+    # queue and location must be both set or both unset
+    queue_set = args.get('queue') is not None
+    loc_set = args.get('location') is not None
+    if queue_set ^ loc_set:
         raise argparse.ArgumentTypeError(
-            f"Argument -p/--provider is required if collector is not file")
-
-
-
+            "Arguments -q/--queue and -o/--location must both be set or both be omitted.")
 
 def run(args):
     try:
@@ -62,17 +39,8 @@ def run(args):
         args['post_parse'](args)
 
         # Create integration configuration
-        iconf = IntegrationConf(args['integration_name'], args['format'], args['module'], args['collector'],
-                                args['provider'], args['event_created'], args['lines'])
-
-        # If provider is not `file` then set the log.file.path
-        if args['collector'] == "file" and args['provider'] is None:
-            iconf.get_template().add_field(SubTempleType.EVENT,
-                                           "log.file.path", args['log_file_path'])
-            iconf.get_template().remove_field(SubTempleType.EVENT, "event.provider")
-
-        if args['provider'] is not None:
-            iconf.get_template().remove_field(SubTempleType.EVENT, "log.file.path")
+        iconf = IntegrationConf(args['integration_name'], args['format'], args.get('queue', ''),
+                                args.get('location', ''), args['lines'])
 
         # Get the configuration database
         db = ConfigDatabase(args['config_file'], create_if_not_exist=True)
@@ -92,16 +60,10 @@ def configure(subparsers):
     parser.add_argument('-f', '--format', help=f'Format in which events should be handled by engine-test.',
                         choices=Formats.get_formats(), dest='format', required=True)
     parser.add_argument(
-        '-m', '--module', help='Name of the module this data is coming from (i.g. logcollector)', dest='module')
+        '-q', '--queue', help='Name of the module this data is coming from (i.g. logcollector)', dest='queue')
     parser.add_argument(
-        '-c', '--collector', help='Name of the collector, source of data (i.g. file, windows-eventlog, journald, macos-uls)', dest='collector')
-    parser.add_argument(
-        '-p', '--provider', help='Name of the provider, source of data (i.g. channel name of eventchannel, unit name of journald, program-name of macos-uls)', dest='provider')
+        '-o', '--location', help='Name of the collector, source of data (i.g. file, windows-eventlog, journald, macos-uls)', dest='location')
     parser.add_argument(
         '-l', '--lines', help='Fixed number of lines for each event. Only for multi-line format.', dest='lines', type=check_positive)
-    parser.add_argument('--log-file-path', help='Path to the log file. Only for file collector.',
-                        dest='log_file_path', type=str)
-    parser.add_argument('--force-event-created', help='Force the event.created date to a specific date. Format: YYYY-MM-DDTHH:MM:SSZ',
-                        dest='event_created', type=str, default="auto")
 
     parser.set_defaults(func=run, post_parse=check_args)

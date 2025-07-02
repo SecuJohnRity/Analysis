@@ -1,5 +1,5 @@
 from enum import Enum
-from engine_test.conf.event_tester_template import TesterMessageTemplate, SubTempleType
+from engine_test.conf.event_tester_template import TesterMessageTemplate
 
 
 class Formats(Enum):
@@ -48,7 +48,7 @@ class IntegrationConf:
     Represents the configuration of an integration.
     '''
 
-    def __init__(self, name: str, format: str, module: str, collector: str, provider: str, date: str, lines: int = None):
+    def __init__(self, name: str, format: str, queue: str, location: str, lines: int = None):
         '''
         Represents the configuration of an integration.
         '''
@@ -63,9 +63,11 @@ class IntegrationConf:
         if self.format == Formats.MULTI_LINE and lines == None:
             raise ValueError("Lines are required for multi-line format.")
 
-        # Create template
-        self.template = TesterMessageTemplate(
-            provider, module, collector, date)
+        # Only create template if both queue and location are provided
+        if queue and location:
+            self.template = TesterMessageTemplate(queue, location)
+        else:
+            self.template = None
 
     def dump_as_tuple(self) -> tuple:
         '''
@@ -73,8 +75,9 @@ class IntegrationConf:
         '''
         data = {
             "format": self.format.value,
-            "template": self.template.dump_template()
         }
+        if self.template:
+            data["template"] = self.template.dump_template()
         if self.lines != None:
             data["lines"] = self.lines
 
@@ -87,20 +90,21 @@ class IntegrationConf:
         '''
         format = Formats.str_to_enum(data["format"])
         lines = data.get("lines", None)
-        template_data = data["template"]
+        template_data = data.get("template")
+        queue = ""
+        location = ""
 
         # Extract necessary values from the template data for initialization
-        collector = template_data["subheader"]["collector"]
-        module = template_data["subheader"]["module"]
-        provider = template_data["event"]["event"]["provider"] if "provider" in template_data["event"]["event"] else None
-        date = template_data["event"]["event"]["created"]
+        if template_data:
+            queue = template_data["event"]["queue"]
+            location = template_data["event"]["location"]
 
         # Create a new instance with the extracted values
-        instance = IntegrationConf(
-            name, format.value, module, collector, provider, date, lines)
+        instance = IntegrationConf(name, format.value, queue, location, lines)
 
         # Restore the full template data
-        instance.template.reload_template(template_data)
+        if template_data and instance.template:
+            instance.template.reload_template(template_data)
 
         return instance
 
@@ -108,4 +112,6 @@ class IntegrationConf:
         '''
         Returns the template of the integration.
         '''
+        if not self.template:
+            raise RuntimeError("No template defined for this integration.")
         return self.template
